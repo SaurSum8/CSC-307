@@ -38,10 +38,46 @@ const findUserById = (id) => {
   return users["users_list"].find((user) => user["id"] === id);
 };
 
+const addUser = (user) => {
+  users["users_list"].push(user);
+  return user;
+};
+
+const removeUserById = (id) => {
+  const index = users["users_list"].findIndex((user) => user["id"] === id);
+  if (index === -1) {
+    return false;
+  }
+  users["users_list"].splice(index, 1);
+  return true;
+};
+
+const findUsersByNameAndJob = (name, job) => {
+  return users["users_list"].filter(
+    (user) => user["name"] === name && user["job"] === job,
+  );
+};
+
 app.use(express.json());
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
+});
+
+app.get("/users", (req, res) => {
+  const name = req.query.name;
+  const job = req.query.job;
+  if (name != undefined && job != undefined) {
+    let result = findUsersByNameAndJob(name, job);
+    result = { users_list: result };
+    res.send(result);
+  } else if (name != undefined || job != undefined) {
+    return res
+      .status(400)
+      .send("Please provide both name and job query parameters.");
+  } else {
+    res.send(users);
+  }
 });
 
 app.get("/users/:id", (req, res) => {
@@ -51,6 +87,22 @@ app.get("/users/:id", (req, res) => {
     res.status(404).send("Resource not found.");
   } else {
     res.send(result);
+  }
+});
+
+app.post("/users", (req, res) => {
+  const userToAdd = req.body;
+  addUser(userToAdd);
+  res.send();
+});
+
+app.delete("/users/:id", (req, res) => {
+  const toDeleteId = req.params["id"];
+  const result = removeUserById(toDeleteId);
+  if (result) {
+    res.status(204).send("Resource deleted successfully.");
+  } else {
+    res.status(404).send("Resource not found.");
   }
 });
 
