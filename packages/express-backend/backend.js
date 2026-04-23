@@ -1,5 +1,6 @@
 // backend.js
 import express from "express";
+import cors from "cors";
 
 const app = express();
 const port = 8000;
@@ -58,6 +59,7 @@ const findUsersByNameAndJob = (name, job) => {
   );
 };
 
+app.use(cors());
 app.use(express.json());
 
 app.get("/", (req, res) => {
@@ -92,8 +94,13 @@ app.get("/users/:id", (req, res) => {
 
 app.post("/users", (req, res) => {
   const userToAdd = req.body;
-  addUser(userToAdd);
-  res.send();
+  req.body.id = Math.random().toString(36).substring(2, 7);
+
+  if (addUser(userToAdd) === userToAdd) {
+    res.status(201).send(userToAdd);
+  } else {
+    res.status(500).send("Error adding resource.");
+  }
 });
 
 app.delete("/users/:id", (req, res) => {
