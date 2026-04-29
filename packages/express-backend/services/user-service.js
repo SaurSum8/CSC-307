@@ -6,14 +6,16 @@ mongoose.set("debug", true);
 dotenv.config();
 
 function getMongoURI(dbname) {
-  // Pull the single connection string from the environment
+  // Pull the MongoDB credentials from environment variables
   const { MONGO_USER, MONGO_PWD, MONGO_CLUSTER } = process.env;
 
   // Construct the connection string
   const connection_string = `mongodb+srv://${MONGO_USER}:${MONGO_PWD}@${MONGO_CLUSTER}.zlzipce.mongodb.net/`;
 
-  if (!connection_string) {
-    console.error("Error: MONGO_CONNECTION_STRING is not defined in .env");
+  if (!MONGO_USER || !MONGO_PWD || !MONGO_CLUSTER) {
+    console.error(
+      "Error: One or more MongoDB environment variables are not defined in .env",
+    );
     return "";
   }
 
